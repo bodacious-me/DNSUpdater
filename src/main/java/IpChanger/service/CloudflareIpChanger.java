@@ -34,58 +34,42 @@ public class CloudflareIpChanger {
         httpHeaders.set("Content-Type", "application/json");
         httpHeaders.set("Accept", "application/json");
         HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url,HttpMethod.GET,entity, String.class);
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         String responseBody = responseEntity.getBody();
-        Map<String, Object> apiResponse = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});            
+        Map<String, Object> apiResponse = objectMapper.readValue(responseBody,
+                new TypeReference<Map<String, Object>>() {
+                });
         List<Map<String, Object>> dnsRecords = (List<Map<String, Object>>) apiResponse.get("result");
-        dnsIds = dnsRecords.stream().map(i-> (String) i.get("id")).collect(Collectors.toList());   
-        dnsNames = dnsRecords.stream().map(i-> (String) i.get("name")).collect(Collectors.toList());        
-     
-System.out.println(dnsIds);
-System.out.println(dnsNames);
-        }
+        dnsIds = dnsRecords.stream().map(i -> (String) i.get("id")).collect(Collectors.toList());
+        dnsNames = dnsRecords.stream().map(i -> (String) i.get("name")).collect(Collectors.toList());
 
-        public void updateIp(String ip){
-            for (int i =0;i<11;i++){
-                Map<String, Object> body = new HashMap<>();
-                String url = "https://api.cloudflare.com/client/v4/zones/207359c28ebf495446b657f15fb25a46/dns_records/"+dnsIds.get(i);
+        System.out.println(dnsIds);
+        System.out.println(dnsNames);
+    }
+
+    public void updateIp(String ip) {
+        for (int i = 0; i < 11; i++) {
+            Map<String, Object> body = new HashMap<>();
+            String url = "https://api.cloudflare.com/client/v4/zones/207359c28ebf495446b657f15fb25a46/dns_records/"
+                    + dnsIds.get(i);
             httpHeaders.set("Authorization", "Bearer iHkMqqopGkxto9nHnSgzQgh81vQYVAHtXXsapw-X");
             httpHeaders.set("Content-Type", "application/json");
             httpHeaders.set("Accept", "application/json");
-            body.put("type", "A"); 
-            body.put("name", dnsNames.get(i)); 
-            body.put("content", ip); 
-            body.put("ttl", 3600); 
-            body.put("proxied", false); 
+            body.put("type", "A");
+            body.put("name", dnsNames.get(i));
+            body.put("content", ip);
+            body.put("ttl", 3600);
+            body.put("proxied", false);
             HttpEntity entity = new HttpEntity<>(body, httpHeaders);
             ResponseEntity<String> updateResponse = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
             if (updateResponse.getStatusCode().is2xxSuccessful()) {
                 System.out.println("DNS record updated successfully: " + updateResponse.getBody());
             } else {
-                System.out.println("Failed to update DNS record: " + updateResponse.getStatusCode() + " - " + updateResponse.getBody());
+                System.out.println("Failed to update DNS record: " + updateResponse.getStatusCode() + " - "
+                        + updateResponse.getBody());
             }
         }
-            
-
-        }
-
-
-        // get and save all the current domain names
-        // curl -X GET
-        // "https://api.cloudflare.com/client/v4/zones/207359c28ebf495446b657f15fb25a46/dns_records"
-        // \
-        // -H "Authorization: Bearer iHkMqqopGkxto9nHnSgzQgh81vQYVAHtXXsapw-X" \
-        // -H "Content-Type: application/json"
-
-        // update the domains with the new ips:
-        // put request ike this:
-
-        // {
-        // "type": "A", // or "AAAA" for IPv6
-        // "name": "example.com", // your domain or subdomain
-        // "content": "NEW_IP_ADDRESS", // the new IP address
-        // "ttl": 1, // Time to live
-        // "proxied": false // Set to true if you want to use Cloudflare's proxy
-        // }
 
     }
+
+}
