@@ -37,8 +37,7 @@ public class CloudflareIpChanger {
         ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         String responseBody = responseEntity.getBody();
         Map<String, Object> apiResponse = objectMapper.readValue(responseBody,
-                new TypeReference<Map<String, Object>>() {
-                });
+                new TypeReference<Map<String, Object>>() {});
         List<Map<String, Object>> dnsRecords = (List<Map<String, Object>>) apiResponse.get("result");
         dnsIds = dnsRecords.stream().map(i -> (String) i.get("id")).collect(Collectors.toList());
         dnsNames = dnsRecords.stream().map(i -> (String) i.get("name")).collect(Collectors.toList());
